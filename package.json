@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "node build"
+    "build": "node index.js"
   },
   "author": "",
   "license": "ISC",
