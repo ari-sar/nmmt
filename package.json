@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "express": "^4.21.0",
+    "mongoose": "^8.7.0",
+    "uuid": "^10.0.0"
+  },
+  "name": "nmmt",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "node build"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
