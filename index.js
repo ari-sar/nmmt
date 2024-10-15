@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const app = express();
 
-const MONGO_URL=process.env.MONGO_URL || "mongodb://localhost/my_database"
+const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost/my_database";
 mongoose
   .connect(MONGO_URL, {
     useNewUrlParser: true,
@@ -22,10 +22,10 @@ const corsOpts = {
 
   allowedHeaders: ["Content-Type"],
 };
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 app.use(cors(corsOpts));
 app.use("/", routes);
 
-app.listen(PORT, () => {
-  console.log("Server started on port 3000");
+app.listen(port, () => {
+  console.log("Server started on port 3000" + port);
 });
