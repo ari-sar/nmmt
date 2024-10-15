@@ -7,14 +7,15 @@ const Brands = require("./models/Brands");
 const Prices = require("./models/Prices");
 const Models = require("./models/Models");
 const Users = require("./models/Users");
+const Sells = require("./models/Sell");
 
 //! Products
 router.post("/products", async (req, res) => {
-  const { name, url } = req.body;
+  const { name, url, color } = req.body;
 
   try {
     const id = uuidv4();
-    const product = new Product({ id, name, url });
+    const product = new Product({ id, name, url, color });
     await product.save();
     res.status(201).json({ message: "Product saved successfully!", product });
   } catch (error) {
@@ -61,7 +62,7 @@ router.put("/products/:id", async (req, res) => {
       .json({ message: "An error occurred while updating the product." });
   }
 });
-router.delete("/products/:id", async (req, res) => {
+router.get("/products/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -84,11 +85,11 @@ router.delete("/products/:id", async (req, res) => {
 
 //! Sub Products
 router.post("/sub-products", async (req, res) => {
-  const { productId, name, url } = req.body;
+  const { productId, name, url, color } = req.body;
 
   try {
     const id = uuidv4();
-    const data = new SubProduct({ id, productId, name, url });
+    const data = new SubProduct({ id, productId, name, url, color });
     await data.save();
     res.status(201).json({ message: "Saved successfully!", data });
   } catch (error) {
@@ -109,6 +110,28 @@ router.get("/sub-products", async (req, res) => {
       .json({ message: "An error occurred while fetching the data." });
   }
 });
+router.get("/sub-products/:productId", async (req, res) => {
+  const { productId } = req.params; // Extract productId from request parameters
+
+  try {
+    // Fetch sub-products that match the given productId
+    const subProducts = await SubProduct.find({ productId });
+
+    if (subProducts.length > 0) {
+      res.status(200).json(subProducts);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No sub-products found for this productId." });
+    }
+  } catch (error) {
+    console.error("Error fetching sub-products:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the sub-products." });
+  }
+});
+
 router.put("/sub-products/:id", async (req, res) => {
   const { id } = req.params;
   const { productId, name, url } = req.body;
@@ -135,7 +158,7 @@ router.put("/sub-products/:id", async (req, res) => {
       .json({ message: "An error occurred while updating the sub-product." });
   }
 });
-router.delete("/sub-products/:id", async (req, res) => {
+router.get("/sub-products-delete/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -159,11 +182,11 @@ router.delete("/sub-products/:id", async (req, res) => {
 
 //! Brands
 router.post("/brands", async (req, res) => {
-  const { name, url } = req.body;
+  const { name, url, color } = req.body;
 
   try {
     const id = uuidv4();
-    const data = new Brands({ id, name, url });
+    const data = new Brands({ id, name, url, color });
     await data.save();
     res.status(201).json({ message: "Saved successfully!", data });
   } catch (error) {
@@ -196,11 +219,11 @@ router.get("/brands/search", async (req, res) => {
       name: { $regex: keyword, $options: "i" }, // 'i' makes it case-insensitive
     });
 
-    if (brands.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No brands found matching the keyword." });
-    }
+    // if (brands.length === 0) {
+    //   return res
+    //     .status(404)
+    //     .json({ message: "No brands found matching the keyword." });
+    // }
 
     res.status(200).json(brands);
   } catch (error) {
@@ -235,7 +258,7 @@ router.put("/brands/:id", async (req, res) => {
       .json({ message: "An error occurred while updating the brand." });
   }
 });
-router.delete("/brands/:id", async (req, res) => {
+router.get("/brands/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -283,6 +306,29 @@ router.get("/models", async (req, res) => {
       .json({ message: "An error occurred while fetching the data." });
   }
 });
+// Route to get sub-products by brandId
+router.get("/models/:brandId", async (req, res) => {
+  const { brandId } = req.params; // Extract brandId from request parameters
+
+  try {
+    // Fetch sub-products that match the given brandId
+    const models = await Models.find({ brandId });
+
+    if (models.length > 0) {
+      res.status(200).json(models);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No sub-products found for this brandId." });
+    }
+  } catch (error) {
+    console.error("Error fetching sub-products:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the sub-products." });
+  }
+});
+
 router.get("/models/search", async (req, res) => {
   const { keyword } = req.query;
 
@@ -334,7 +380,7 @@ router.put("/models/:id", async (req, res) => {
       .json({ message: "An error occurred while updating the model." });
   }
 });
-router.delete("/models/:id", async (req, res) => {
+router.get("/models/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -394,7 +440,7 @@ router.post("/prices", async (req, res) => {
       .json({ message: "An error occurred while saving the data." });
   }
 });
-router.get("/prices", async (req, res) => {
+router.get("/prices-all", async (req, res) => {
   try {
     const data = await Prices.find();
     res.status(200).json(data);
@@ -405,8 +451,43 @@ router.get("/prices", async (req, res) => {
       .json({ message: "An error occurred while fetching the data." });
   }
 });
+// Route to get prices based on brandId, productId, and subProductId
+router.get("/prices", async (req, res) => {
+  const { brandId, productId, subProductId } = req.query; // Extract query parameters
+
+  try {
+    // Build query dynamically based on provided parameters
+    let query = {};
+
+    if (brandId) {
+      query.brandId = brandId;
+    }
+
+    if (productId) {
+      query.productId = productId;
+    }
+
+    if (subProductId) {
+      query.subProductId = subProductId;
+    }
+
+    // Fetch prices based on query parameters and populate modelName from Models collection
+    const prices = await Prices.find(query).populate({
+      path: "modelId", // The field in Prices schema that references Models
+      select: "name", // Only fetch modelName from the Models collection
+    });
+
+    res.status(200).json(prices);
+  } catch (error) {
+    console.error("Error fetching prices:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the prices." });
+  }
+});
+
 router.get("/prices/search", async (req, res) => {
-  const { keyword } = req.query;
+  const { keyword, brandId, productId, subProductId } = req.query;
 
   if (!keyword) {
     return res.status(400).json({ message: "Keyword is required." });
@@ -420,20 +501,21 @@ router.get("/prices/search", async (req, res) => {
 
     // Step 2: If no Models are found, return a 404 response
     if (matchedModels.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No models found matching the keyword." });
+      return res.status(201).json([]);
     }
 
     // Step 3: Extract model IDs from the matched Models
-    const modelIds = matchedModels.map((model) => model.id);
+    const modelIds = matchedModels.map((model) => model._id); // Use _id for ObjectId reference
 
-    // Step 4: Find Prices that match the model IDs
+    // Step 4: Find Prices that match the model IDs and other criteria
     const prices = await Prices.find({
       modelId: { $in: modelIds },
-    });
+      ...(brandId && { brandId }),
+      ...(productId && { productId }),
+      ...(subProductId && { subProductId }),
+    }).populate("modelId", "name"); // Populate modelId to get model name
 
-    // Return the matching Prices documents
+    // Return the matching Prices documents with populated model names
     res.status(200).json(prices);
   } catch (error) {
     console.error("Error fetching prices:", error);
@@ -442,6 +524,7 @@ router.get("/prices/search", async (req, res) => {
       .json({ message: "An error occurred while fetching the prices." });
   }
 });
+
 router.put("/prices/:id", async (req, res) => {
   const { id } = req.params;
   const {
@@ -489,7 +572,7 @@ router.put("/prices/:id", async (req, res) => {
       .json({ message: "An error occurred while updating the price entry." });
   }
 });
-router.delete("/prices/:id", async (req, res) => {
+router.get("/prices/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -529,6 +612,22 @@ router.get("/users", async (req, res) => {
     res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching dara:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the data." });
+  }
+});
+router.get("/users/user/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const data = await Users.findOne({ userId: id }); // Fetch the user by ID from the database
+    if (data) {
+      res.status(200).json([data]); // If the user is found, return the data with a 200 status
+    } else {
+      res.status(201).json([]); // If no user is found, return 404
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
     res
       .status(500)
       .json({ message: "An error occurred while fetching the data." });
@@ -582,11 +681,11 @@ router.put("/users/:id", async (req, res) => {
       .json({ message: "An error occurred while updating the user." });
   }
 });
-router.delete("/users/:id", async (req, res) => {
+router.get("/users/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedUser = await Users.findOneAndDelete({ id });
+    const deletedUser = await Users.findOneAndDelete({ userId: id });
 
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found." });
@@ -600,6 +699,187 @@ router.delete("/users/:id", async (req, res) => {
     res
       .status(500)
       .json({ message: "An error occurred while deleting the user." });
+  }
+});
+
+//! Sell
+router.post("/sells", async (req, res) => {
+  const {
+    price,
+    modelName,
+    modelId,
+    productId,
+    subProductId,
+    brandId,
+    qty,
+    date,
+  } = req.body;
+  const id = uuidv4();
+  //const formattedDate = new Date(date);
+  try {
+    // Create a new sell record
+    const newSell = new Sells({
+      id,
+      price,
+      modelName,
+      modelId,
+      productId,
+      subProductId,
+      brandId,
+      qty,
+      date,
+    });
+
+    // Save the new sell record to the database
+    const savedSell = await newSell.save();
+    res.status(201).json(savedSell);
+  } catch (error) {
+    console.error("Error creating sell:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while creating the sell." });
+  }
+});
+// GET request to fetch sells by date
+router.get("/sells/everyday", async (req, res) => {
+  const { date } = req.query;
+
+  if (!date || isNaN(Date.parse(date))) {
+    return res.status(400).json({ message: "Valid date is required." });
+  }
+
+  try {
+    // Create a Date object from the date string, with the assumption it is in UTC
+    const queryDate = new Date(date + "T00:00:00Z"); // Force to UTC start of the date
+
+    // Using Date.UTC to create start and end of day
+    const startOfDay = new Date(
+      Date.UTC(
+        queryDate.getUTCFullYear(),
+        queryDate.getUTCMonth(),
+        queryDate.getUTCDate(),
+        0,
+        0,
+        0
+      )
+    );
+    const endOfDay = new Date(
+      Date.UTC(
+        queryDate.getUTCFullYear(),
+        queryDate.getUTCMonth(),
+        queryDate.getUTCDate(),
+        23,
+        59,
+        59,
+        999
+      )
+    );
+
+    const sells = await Sells.find({
+      date: {
+        $gte: startOfDay, // Should be 2024-10-15T00:00:00.000Z
+        $lt: endOfDay, // Should be 2024-10-16T00:00:00.000Z
+      },
+    });
+
+    console.log("Sells Found:", sells);
+
+    res.status(200).json(sells);
+  } catch (error) {
+    console.error("Error fetching sells by date:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching sells." });
+  }
+});
+
+router.get("/sells/today-total", async (req, res) => {
+  const { date } = req.query;
+
+  if (!date || isNaN(Date.parse(date))) {
+    return res.status(400).json({ message: "Valid date is required." });
+  }
+
+  try {
+    // Create a Date object from the date string, with the assumption it is in UTC
+    const queryDate = new Date(date + "T00:00:00Z");
+
+    // Using Date.UTC to create start and end of day
+    const startOfDay = new Date(
+      Date.UTC(
+        queryDate.getUTCFullYear(),
+        queryDate.getUTCMonth(),
+        queryDate.getUTCDate(),
+        0,
+        0,
+        0
+      )
+    );
+    const endOfDay = new Date(
+      Date.UTC(
+        queryDate.getUTCFullYear(),
+        queryDate.getUTCMonth(),
+        queryDate.getUTCDate(),
+        23,
+        59,
+        59,
+        999
+      )
+    );
+
+    // Aggregation pipeline to sum prices
+    const result = await Sells.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: startOfDay,
+            $lt: endOfDay,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null, // Grouping by null to get total sum
+          totalAmount: { $sum: "$price" }, // Summing the price field
+        },
+      },
+    ]);
+
+    // Extract the total amount
+    const totalSellAmount = result.length > 0 ? result[0].totalAmount : 0;
+
+    res.status(200).json({ totalSellAmount });
+  } catch (error) {
+    console.error("Error fetching total sell amount:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching total sell amount." });
+  }
+});
+
+router.get("/sells/total-price", async (req, res) => {
+  try {
+    // Calculate the total price of all sells
+    const totalPrice = await Sells.aggregate([
+      {
+        $group: {
+          _id: null, // Group all records together
+          total: { $sum: "$price" }, // Calculate the total price
+        },
+      },
+    ]);
+
+    // Check if totalPrice is empty
+    if (totalPrice.length === 0 || totalPrice[0].total === 0) {
+      return res.status(404).json({ message: "No sells found." });
+    }
+
+    res.status(200).json({ totalPrice: totalPrice[0].total });
+  } catch (error) {
+    console.error("Error calculating total price:", error);
+    res.status(500).json({
+      message: "An error occurred while calculating the total price.",
+    });
   }
 });
 

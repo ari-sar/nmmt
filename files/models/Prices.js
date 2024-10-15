@@ -14,7 +14,7 @@ const PricesSchema = new mongoose.Schema({
   brandId: { type: String },
   productId: { type: String },
   subProductId: { type: String },
-  modelId: { type: String },
+  modelId: { type: mongoose.Schema.Types.ObjectId, ref: "Models" },
   isActive: { type: Boolean, default: true },
 });
 

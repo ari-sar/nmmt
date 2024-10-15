@@ -1,14 +1,31 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const db = require('./files/db');
-const routes = require('./files/routes');
-
+const express = require("express");
+const bodyParser = require("body-parser");
+const routes = require("./files/routes");
+const cors = require("cors");
+const mongoose = require("mongoose");
 const app = express();
 
+const MONGO_URL=process.env.MONGO_URL || "mongodb://localhost/my_database"
+mongoose
+  .connect(MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log(err));
+
 app.use(bodyParser.json());
+const corsOpts = {
+  origin: "*",
 
-app.use('/', routes);
+  methods: ["GET", "POST"],
 
-app.listen(3000, () => {
-  console.log('Server started on port 3000');
+  allowedHeaders: ["Content-Type"],
+};
+const PORT = process.env.PORT || 3000;
+app.use(cors(corsOpts));
+app.use("/", routes);
+
+app.listen(PORT, () => {
+  console.log("Server started on port 3000");
 });

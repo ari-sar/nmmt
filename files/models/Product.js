@@ -15,6 +15,9 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  color: {
+    type: String,
+  },
 });
 
 // Export the Product model
