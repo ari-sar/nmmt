@@ -380,7 +380,7 @@ router.put("/models/:id", async (req, res) => {
       .json({ message: "An error occurred while updating the model." });
   }
 });
-router.get("/models/:id", async (req, res) => {
+router.get("/models/delete/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -407,6 +407,7 @@ router.post("/prices", async (req, res) => {
     average,
     good,
     best,
+    amoled,
     hasWarranty,
     warrantyTenure,
     brandId,
@@ -423,6 +424,7 @@ router.post("/prices", async (req, res) => {
       average,
       good,
       best,
+      amoled,
       hasWarranty,
       warrantyTenure,
       brandId,
@@ -531,6 +533,7 @@ router.put("/prices/:id", async (req, res) => {
     average,
     good,
     best,
+    amoled,
     hasWarranty,
     warrantyTenure,
     brandId,
@@ -547,6 +550,7 @@ router.put("/prices/:id", async (req, res) => {
         average,
         good,
         best,
+        amoled,
         hasWarranty,
         warrantyTenure,
         brandId,
