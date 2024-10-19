@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const app = express();
 
-const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost/my_database";
+const MONGO_URL = process.env.MONGO_URL || "mongodb+srv://ari:nmmt@nmmt.urolb.mongodb.net/?retryWrites=true&w=majority&appName=nmmt";
 mongoose
   .connect(MONGO_URL, {
     useNewUrlParser: true,
