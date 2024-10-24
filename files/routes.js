@@ -37,14 +37,14 @@ router.get("/products", async (req, res) => {
       .json({ message: "An error occurred while fetching the products." });
   }
 });
-router.put("/products/:id", async (req, res) => {
+router.post("/products/edit/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, url } = req.body;
+  const { name, url, color } = req.body;
 
   try {
     const updatedProduct = await Product.findOneAndUpdate(
       { id },
-      { name, url },
+      { name, url, color },
       { new: true } // Return the updated document
     );
 
@@ -132,14 +132,14 @@ router.get("/sub-products/:productId", async (req, res) => {
   }
 });
 
-router.put("/sub-products/:id", async (req, res) => {
+router.post("/sub-products/edit/:id", async (req, res) => {
   const { id } = req.params;
-  const { productId, name, url } = req.body;
+  const { productId, name, url, color } = req.body;
 
   try {
     const updatedSubProduct = await SubProduct.findOneAndUpdate(
       { id },
-      { productId, name, url },
+      { productId, name, url, color },
       { new: true }
     );
 
@@ -233,14 +233,14 @@ router.get("/brands/search", async (req, res) => {
       .json({ message: "An error occurred while fetching the brands." });
   }
 });
-router.put("/brands/:id", async (req, res) => {
+router.post("/brands/edit/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, url } = req.body;
+  const { name, url, color } = req.body;
 
   try {
     const updatedBrand = await Brands.findOneAndUpdate(
       { id },
-      { name, url },
+      { name, url, color },
       { new: true }
     );
 
@@ -355,7 +355,7 @@ router.get("/models/search", async (req, res) => {
       .json({ message: "An error occurred while fetching the data." });
   }
 });
-router.put("/models/:id", async (req, res) => {
+router.post("/models/:id", async (req, res) => {
   const { id } = req.params;
   const { brandId, name } = req.body;
 
@@ -408,6 +408,7 @@ router.post("/prices", async (req, res) => {
     good,
     best,
     amoled,
+    wholeSellerPrice,
     hasWarranty,
     warrantyTenure,
     brandId,
@@ -425,6 +426,7 @@ router.post("/prices", async (req, res) => {
       good,
       best,
       amoled,
+      wholeSellerPrice,
       hasWarranty,
       warrantyTenure,
       brandId,
@@ -527,13 +529,14 @@ router.get("/prices/search", async (req, res) => {
   }
 });
 
-router.put("/prices/:id", async (req, res) => {
+router.post("/prices/edit/:id", async (req, res) => {
   const { id } = req.params;
   const {
     average,
     good,
     best,
     amoled,
+    wholeSellerPrice,
     hasWarranty,
     warrantyTenure,
     brandId,
@@ -551,6 +554,7 @@ router.put("/prices/:id", async (req, res) => {
         good,
         best,
         amoled,
+        wholeSellerPrice,
         hasWarranty,
         warrantyTenure,
         brandId,
@@ -605,11 +609,18 @@ router.post("/users", async (req, res) => {
     res.status(201).json({ message: "Saved successfully!", data });
   } catch (error) {
     console.error("Error saving data:", error);
-    res
-      .status(500)
-      .json({ message: "An error occurred while saving the data." });
+
+    // Check for duplicate key error
+    if (error.code === 11000) {
+      res.status(409).json({ message: "Duplicate user, User already exists" }); // 409 Conflict
+    } else {
+      res
+        .status(500)
+        .json({ message: "An error occurred while saving the data." });
+    }
   }
 });
+
 router.get("/users", async (req, res) => {
   try {
     const data = await Users.find();
@@ -663,11 +674,11 @@ router.get("/users/search", async (req, res) => {
       .json({ message: "An error occurred while fetching the data." });
   }
 });
-router.put("/users/:id", async (req, res) => {
-  const { id } = req.params;
+router.post("/users/edit/:userId", async (req, res) => {
+  const { userId } = req.params;
 
   try {
-    const updatedUser = await Users.findOneAndUpdate({ id }, req.body, {
+    const updatedUser = await Users.findOneAndUpdate({ userId }, req.body, {
       new: true,
     });
 

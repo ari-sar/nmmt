@@ -10,6 +10,7 @@ const PricesSchema = new mongoose.Schema({
   good: { type: Number, default: 0 },
   best: { type: Number, default: 0 },
   amoled: { type: Number, default: 0 },
+  wholeSellerPrice: { type: Number, default: 0 },
   hasWarranty: { type: Boolean, default: false },
   warrantyTenure: { type: String },
   brandId: { type: String },
