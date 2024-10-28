@@ -85,11 +85,11 @@ router.get("/products/:id", async (req, res) => {
 
 //! Sub Products
 router.post("/sub-products", async (req, res) => {
-  const { productId, name, url, color } = req.body;
+  const { productId, name, url, color,visableTo,hasBrands } = req.body;
 
   try {
     const id = uuidv4();
-    const data = new SubProduct({ id, productId, name, url, color });
+    const data = new SubProduct({ id, productId, name, url, color,visableTo,hasBrands });
     await data.save();
     res.status(201).json({ message: "Saved successfully!", data });
   } catch (error) {
@@ -134,12 +134,12 @@ router.get("/sub-products/:productId", async (req, res) => {
 
 router.post("/sub-products/edit/:id", async (req, res) => {
   const { id } = req.params;
-  const { productId, name, url, color } = req.body;
+  const { productId, name, url, color, visableTo,hasBrands } = req.body;
 
   try {
     const updatedSubProduct = await SubProduct.findOneAndUpdate(
       { id },
-      { productId, name, url, color },
+      { productId, name, url, color, visableTo,hasBrands },
       { new: true }
     );
 

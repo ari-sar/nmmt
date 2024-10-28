@@ -21,6 +21,14 @@ const subProductSchema = new mongoose.Schema({
   color: {
     type: String,
   },
+  visableTo: {
+    type: String,
+    default: "both",
+  },
+  hasBrands: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // Export the Product model
