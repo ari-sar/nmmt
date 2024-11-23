@@ -416,6 +416,7 @@ router.post("/prices", async (req, res) => {
     subProductId,
     modelId,
     isActive,
+    qty
   } = req.body;
 
   try {
@@ -434,6 +435,7 @@ router.post("/prices", async (req, res) => {
       subProductId,
       modelId,
       isActive,
+      qty
     });
     await data.save();
     res.status(201).json({ message: "Saved successfully!", data });
@@ -544,6 +546,7 @@ router.post("/prices/edit/:id", async (req, res) => {
     subProductId,
     modelId,
     isActive,
+    qty
   } = req.body;
 
   try {
@@ -562,6 +565,7 @@ router.post("/prices/edit/:id", async (req, res) => {
         subProductId,
         modelId,
         isActive,
+        qty
       },
       { new: true }
     );
@@ -811,15 +815,16 @@ router.get("/sells/everyday", async (req, res) => {
 router.get("/sells/today-total", async (req, res) => {
   const { date } = req.query;
 
+  // Validate the provided date
   if (!date || isNaN(Date.parse(date))) {
     return res.status(400).json({ message: "Valid date is required." });
   }
 
   try {
-    // Create a Date object from the date string, with the assumption it is in UTC
+    // Create a Date object from the date string, assuming it is in UTC
     const queryDate = new Date(date + "T00:00:00Z");
 
-    // Using Date.UTC to create start and end of day
+    // Define the start and end of the day in UTC
     const startOfDay = new Date(
       Date.UTC(
         queryDate.getUTCFullYear(),
@@ -842,7 +847,7 @@ router.get("/sells/today-total", async (req, res) => {
       )
     );
 
-    // Aggregation pipeline to sum prices
+    // Aggregation pipeline to calculate total sell amount
     const result = await Sells.aggregate([
       {
         $match: {
@@ -854,8 +859,8 @@ router.get("/sells/today-total", async (req, res) => {
       },
       {
         $group: {
-          _id: null, // Grouping by null to get total sum
-          totalAmount: { $sum: "$price" }, // Summing the price field
+          _id: null, // Group all records together
+          totalAmount: { $sum: { $multiply: ["$price", "$qty"] } }, // Calculate total = price * qty
         },
       },
     ]);
@@ -872,21 +877,22 @@ router.get("/sells/today-total", async (req, res) => {
   }
 });
 
+
 router.get("/sells/total-price", async (req, res) => {
   try {
-    // Calculate the total price of all sells
+    // Calculate the total sell price based on price and quantity
     const totalPrice = await Sells.aggregate([
       {
         $group: {
           _id: null, // Group all records together
-          total: { $sum: "$price" }, // Calculate the total price
+          total: { $sum: { $multiply: ["$price", "$qty"] } }, // Calculate total = price * qty
         },
       },
     ]);
 
-    // Check if totalPrice is empty
+    // Check if totalPrice is empty or total is 0
     if (totalPrice.length === 0 || totalPrice[0].total === 0) {
-      return res.status(404).json({ message: "No sells found." });
+      return res.status(404).json({ message: "No sells found or total is zero." });
     }
 
     res.status(200).json({ totalPrice: totalPrice[0].total });
@@ -897,5 +903,6 @@ router.get("/sells/total-price", async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;

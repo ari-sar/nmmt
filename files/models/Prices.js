@@ -18,6 +18,7 @@ const PricesSchema = new mongoose.Schema({
   subProductId: { type: String },
   modelId: { type: mongoose.Schema.Types.ObjectId, ref: "Models" },
   isActive: { type: Boolean, default: true },
+  qty: { type: Number, default: 0 },
 });
 
 const Prices = mongoose.model("Prices", PricesSchema);
