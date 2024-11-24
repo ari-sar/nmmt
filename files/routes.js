@@ -313,6 +313,7 @@ router.get("/models/:brandId", async (req, res) => {
   try {
     // Fetch sub-products that match the given brandId
     const models = await Models.find({ brandId });
+    console.log(models,brandId)
 
     if (models.length > 0) {
       res.status(200).json(models);
@@ -355,7 +356,7 @@ router.get("/models/search", async (req, res) => {
       .json({ message: "An error occurred while fetching the data." });
   }
 });
-router.post("/models/:id", async (req, res) => {
+router.post("/models/edit/:id", async (req, res) => {
   const { id } = req.params;
   const { brandId, name } = req.body;
 
@@ -732,6 +733,7 @@ router.post("/sells", async (req, res) => {
     brandId,
     qty,
     date,
+    userName
   } = req.body;
   const id = uuidv4();
   //const formattedDate = new Date(date);
@@ -747,6 +749,7 @@ router.post("/sells", async (req, res) => {
       brandId,
       qty,
       date,
+      userName
     });
 
     // Save the new sell record to the database

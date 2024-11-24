@@ -14,6 +14,7 @@ const SellSchema = new mongoose.Schema({
   brandId: { type: String },
   qty: { type: Number },
   date: { type: Date },
+  userName: { type: String, default: "" },
 });
 
 const Sells = mongoose.model("Sells", SellSchema);
