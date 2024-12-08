@@ -3,3 +3,4 @@ services:
     name: app-nmmt-sp
     runtime: docker
     dockerfilePath: ./Dockerfile
+    plan: free
