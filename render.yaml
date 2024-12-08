@@ -3,6 +3,3 @@ services:
     name: app-nmmt-sp
     runtime: docker
     dockerfilePath: ./Dockerfile
-    envVars:
-    - key: PORT
-      value: 8080
