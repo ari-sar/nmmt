@@ -503,34 +503,35 @@ router.get("/prices/search", async (req, res) => {
   try {
     // Step 1: Find Models that match the keyword
     const matchedModels = await Models.find({
-      name: { $regex: keyword, $options: "i" }, // 'i' makes it case-insensitive
+      name: { $regex: keyword, $options: "i" }, // case-insensitive search
     });
 
-    // Step 2: If no Models are found, return a 404 response
+    // Step 2: If no Models are found, return an empty array with 201 status
     if (matchedModels.length === 0) {
       return res.status(201).json([]);
     }
 
     // Step 3: Extract model IDs from the matched Models
-    const modelIds = matchedModels.map((model) => model._id); // Use _id for ObjectId reference
+    const modelIds = matchedModels.map((model) => model._id);
 
-    // Step 4: Find Prices that match the model IDs and other criteria
+    // Step 4: Find Prices that match the model IDs and other criteria, limit output to 10 results
     const prices = await Prices.find({
       modelId: { $in: modelIds },
       ...(brandId && { brandId }),
       ...(productId && { productId }),
       ...(subProductId && { subProductId }),
-    }).populate("modelId", "name"); // Populate modelId to get model name
+    })
+      .limit(10)
+      .populate("modelId", "name"); // Populate modelId to get model name
 
     // Return the matching Prices documents with populated model names
     res.status(200).json(prices);
   } catch (error) {
     console.error("Error fetching prices:", error);
-    res
-      .status(500)
-      .json({ message: "An error occurred while fetching the prices." });
+    res.status(500).json({ message: "An error occurred while fetching the prices." });
   }
 });
+
 
 router.post("/prices/edit/:id", async (req, res) => {
   const { id } = req.params;
