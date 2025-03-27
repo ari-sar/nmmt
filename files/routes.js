@@ -616,9 +616,11 @@ router.post("/users", async (req, res) => {
   } catch (error) {
     console.error("Error saving data:", error);
 
-    // Check for duplicate key error
     if (error.code === 11000) {
-      res.status(409).json({ message: "Duplicate user, User already exists" }); // 409 Conflict
+      const field = Object.keys(error.keyPattern)[0]; // Extracts the field causing the error
+      res.status(409).json({
+        message: `Duplicate value for ${field}, please choose a different one.`,
+      });
     } else {
       res
         .status(500)
@@ -626,6 +628,7 @@ router.post("/users", async (req, res) => {
     }
   }
 });
+
 
 router.get("/users", async (req, res) => {
   try {
