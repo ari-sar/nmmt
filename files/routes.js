@@ -9,6 +9,9 @@ const Models = require("./models/Models");
 const Users = require("./models/Users");
 const Sells = require("./models/Sell");
 
+router.get("/", (req, res) => {
+  res.status(200).json({ message: "API is working!" });
+});
 //! Products
 router.post("/products", async (req, res) => {
   const { name, url, color } = req.body;

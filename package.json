@@ -2,7 +2,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.0",
-    "mongoose": "^8.7.0",
+    "mongoose": "^7.6.12",
     "uuid": "^10.0.0"
   },
   "name": "nmmt",
